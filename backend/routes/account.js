@@ -6,15 +6,26 @@ const router=express.Router();
 
 router.use(express.json())
 
-router.get("/balance",authMiddleware,async function(req,res){
-    const authuserid=req.userId;
-    const getuser=await Account.findOne({
-        userId:authuserid
-    })
-    res.json({
-        msg:getuser.Balance
-    })
-})
+router.get("/balance", authMiddleware, async function(req, res) {
+    const authuserid = req.userId;
+    try {
+        const getuser = await Account.findOne({
+            userId: authuserid
+        });
+
+        if (!getuser) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.json({
+            msg: getuser.Balance
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 
 router.post("/transfer",authMiddleware,async function(req,res){
     const session=await mongoose.startSession();
